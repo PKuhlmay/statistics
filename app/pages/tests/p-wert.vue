@@ -53,7 +53,7 @@ const chartData = computed(() => {
     labels: curveData.value.labels,
     datasets: [
       {
-        label: 'Standardnormalverteilung',
+        label: 'Näherung (Normalverteilung)',
         data: curveData.value.y,
         borderColor: '#818cf8',
         backgroundColor: 'rgba(129, 140, 248, 0.05)',
@@ -113,8 +113,8 @@ const chartOptions = {
       <p class="mb-1 font-semibold text-accent-400">Beispiel: Energieausweis-Prüfung</p>
       <p>
         Eine Industriehalle soll laut Energieausweis maximal 140 MWh/Monat verbrauchen.
-        Du misst 10 Monate und willst prüfen: Liegt der tatsächliche Verbrauch
-        signifikant über dem Sollwert?
+        Du misst 10 Monate und willst prüfen: Weicht der tatsächliche Verbrauch
+        signifikant vom Sollwert ab?
       </p>
     </div>
 

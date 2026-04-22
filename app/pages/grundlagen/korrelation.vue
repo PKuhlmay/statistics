@@ -12,38 +12,54 @@ ChartJS.register(LinearScale, PointElement, Tooltip)
 
 definePageMeta({ title: 'Korrelation' })
 
+// Mode: slider-generated or freehand
+const mode = ref<'slider' | 'freehand'>('slider')
+
+// Slider mode
 const targetR = ref(0.8)
 const seed = ref(42)
-
 const generated = computed(() => generateCorrelatedData(60, targetR.value, seed.value))
-const actualR = computed(() => pearsonR(generated.value.x, generated.value.y))
 
-const chartData = computed(() => {
-  const { x, y } = generated.value
-  return {
-    datasets: [
-      {
-        label: 'Daten',
-        data: x.map((xi, i) => ({ x: xi, y: y[i] })),
-        backgroundColor: 'rgba(129, 140, 248, 0.6)',
-        pointRadius: 5,
-        pointHoverRadius: 7,
-      },
-    ],
-  }
-})
+// Freehand mode
+const freehandPoints = ref<{ x: number; y: number }[]>([])
+const chartRef = ref<InstanceType<typeof Scatter> | null>(null)
 
-const chartOptions = {
+// Current data based on mode
+const currentX = computed(() =>
+  mode.value === 'slider' ? generated.value.x : freehandPoints.value.map((p) => p.x),
+)
+const currentY = computed(() =>
+  mode.value === 'slider' ? generated.value.y : freehandPoints.value.map((p) => p.y),
+)
+const actualR = computed(() => pearsonR(currentX.value, currentY.value))
+
+const chartData = computed(() => ({
+  datasets: [
+    {
+      label: 'Daten',
+      data: currentX.value.map((xi, i) => ({ x: xi, y: currentY.value[i] })),
+      backgroundColor: mode.value === 'freehand' ? 'rgba(248, 113, 113, 0.6)' : 'rgba(129, 140, 248, 0.6)',
+      pointRadius: 6,
+      pointHoverRadius: 8,
+    },
+  ],
+}))
+
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   animation: { duration: 200 },
   scales: {
     x: {
-      title: { display: true, text: 'x', color: '#64748b' },
+      type: 'linear' as const,
+      ...(mode.value === 'freehand' ? { min: 0, max: 10, suggestedMin: 0, suggestedMax: 10 } : {}),
+      title: { display: true, text: mode.value === 'freehand' ? 'x (Klick zum Setzen)' : 'x', color: '#64748b' },
       ticks: { color: '#64748b', font: { family: 'monospace', size: 11 } },
       grid: { color: 'rgba(255,255,255,0.05)' },
     },
     y: {
+      type: 'linear' as const,
+      ...(mode.value === 'freehand' ? { min: 0, max: 10, suggestedMin: 0, suggestedMax: 10 } : {}),
       title: { display: true, text: 'y', color: '#64748b' },
       ticks: { color: '#64748b', font: { family: 'monospace', size: 11 } },
       grid: { color: 'rgba(255,255,255,0.05)' },
@@ -52,10 +68,53 @@ const chartOptions = {
   plugins: {
     tooltip: { enabled: false },
   },
+}))
+
+function handleChartClick(event: MouseEvent) {
+  if (mode.value !== 'freehand' || !chartRef.value?.chart) return
+  const chart = chartRef.value.chart as { scales: { x: { getValueForPixel: (px: number) => number }; y: { getValueForPixel: (px: number) => number } }; canvas: HTMLCanvasElement }
+  const rect = chart.canvas.getBoundingClientRect()
+  const canvasX = event.clientX - rect.left
+  const canvasY = event.clientY - rect.top
+  const x = chart.scales.x.getValueForPixel(canvasX)
+  const y = chart.scales.y.getValueForPixel(canvasY)
+  if (x != null && y != null && x >= 0 && x <= 10 && y >= 0 && y <= 10) {
+    freehandPoints.value = [...freehandPoints.value, { x: Number(x.toFixed(2)), y: Number(y.toFixed(2)) }]
+  }
 }
 
 function reshuffle() {
   seed.value = Math.floor(Math.random() * 10000)
+}
+
+function clearFreehand() {
+  freehandPoints.value = []
+}
+
+function undoFreehand() {
+  freehandPoints.value = freehandPoints.value.slice(0, -1)
+}
+
+function loadPreset(preset: 'positive' | 'negative' | 'none' | 'curve') {
+  const presets: Record<string, { x: number; y: number }[]> = {
+    positive: [
+      { x: 1, y: 1.5 }, { x: 2, y: 2.8 }, { x: 3, y: 3.2 }, { x: 4, y: 4.5 },
+      { x: 5, y: 5.1 }, { x: 6, y: 5.8 }, { x: 7, y: 7.2 }, { x: 8, y: 7.9 }, { x: 9, y: 8.5 },
+    ],
+    negative: [
+      { x: 1, y: 9 }, { x: 2, y: 7.5 }, { x: 3, y: 7 }, { x: 4, y: 5.8 },
+      { x: 5, y: 5.2 }, { x: 6, y: 4 }, { x: 7, y: 3.5 }, { x: 8, y: 2 }, { x: 9, y: 1.5 },
+    ],
+    none: [
+      { x: 1, y: 5 }, { x: 2, y: 2 }, { x: 3, y: 8 }, { x: 4, y: 3 },
+      { x: 5, y: 7 }, { x: 6, y: 4 }, { x: 7, y: 6 }, { x: 8, y: 1 }, { x: 9, y: 9 },
+    ],
+    curve: [
+      { x: 1, y: 2 }, { x: 2, y: 5 }, { x: 3, y: 7 }, { x: 4, y: 8.5 },
+      { x: 5, y: 9 }, { x: 6, y: 8.5 }, { x: 7, y: 7 }, { x: 8, y: 5 }, { x: 9, y: 2 },
+    ],
+  }
+  freehandPoints.value = presets[preset]
 }
 
 function rLabel(r: number): string {
@@ -177,11 +236,30 @@ function rLabel(r: number): string {
       <FormulaBlock formula="r = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i - \bar{x})^2 \cdot \sum_{i=1}^{n}(y_i - \bar{y})^2}}" />
     </div>
 
-    <!-- Correlation Slider Tool -->
+    <!-- Correlation Tool -->
     <div class="mb-8">
-      <h2 class="mb-4 text-xl font-semibold">Correlation Slider</h2>
+      <h2 class="mb-4 text-xl font-semibold">Korrelation ausprobieren</h2>
       <div class="rounded-xl border border-surface-700 bg-surface-800 p-5">
-        <div class="mb-4 flex items-center gap-6">
+        <!-- Mode selector -->
+        <div class="mb-4 flex gap-2">
+          <button
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            :class="mode === 'slider' ? 'bg-accent-500 text-white' : 'bg-surface-700 text-text-secondary hover:bg-surface-600'"
+            @click="mode = 'slider'"
+          >
+            Slider-Modus
+          </button>
+          <button
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            :class="mode === 'freehand' ? 'bg-accent-500 text-white' : 'bg-surface-700 text-text-secondary hover:bg-surface-600'"
+            @click="mode = 'freehand'"
+          >
+            Freihand-Modus
+          </button>
+        </div>
+
+        <!-- Slider mode controls -->
+        <div v-if="mode === 'slider'" class="mb-4 flex items-center gap-6">
           <div class="flex-1">
             <SliderInput
               v-model="targetR"
@@ -199,22 +277,56 @@ function rLabel(r: number): string {
           </button>
         </div>
 
-        <div class="h-80">
-          <Scatter :data="chartData" :options="chartOptions" />
+        <!-- Freehand mode controls -->
+        <div v-if="mode === 'freehand'" class="mb-4">
+          <p class="mb-3 text-sm text-text-secondary">
+            Klicke auf den Chart, um Punkte zu setzen. Beobachte, wie sich r verändert.
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button
+              class="rounded-lg bg-surface-600 px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-500"
+              @click="undoFreehand"
+              :disabled="freehandPoints.length === 0"
+            >
+              Letzten Punkt entfernen
+            </button>
+            <button
+              class="rounded-lg bg-surface-600 px-3 py-1.5 text-xs text-text-secondary hover:bg-surface-500"
+              @click="clearFreehand"
+            >
+              Alle löschen
+            </button>
+            <span class="mx-2 text-xs text-text-muted">|</span>
+            <span class="text-xs text-text-muted">Presets:</span>
+            <button class="rounded bg-green-500/20 px-2 py-1 text-xs text-green-400 hover:bg-green-500/30" @click="loadPreset('positive')">r ≈ +1</button>
+            <button class="rounded bg-red-500/20 px-2 py-1 text-xs text-red-400 hover:bg-red-500/30" @click="loadPreset('negative')">r ≈ −1</button>
+            <button class="rounded bg-surface-600 px-2 py-1 text-xs text-text-muted hover:bg-surface-500" @click="loadPreset('none')">r ≈ 0</button>
+            <button class="rounded bg-yellow-500/20 px-2 py-1 text-xs text-yellow-400 hover:bg-yellow-500/30" @click="loadPreset('curve')">U-Form</button>
+          </div>
+        </div>
+
+        <div class="h-80" @click="mode === 'freehand' ? handleChartClick($event) : undefined">
+          <Scatter :key="mode" ref="chartRef" :data="chartData" :options="chartOptions" />
         </div>
 
         <div class="mt-4 flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="rounded-lg bg-surface-700 px-4 py-2">
               <span class="text-xs text-text-muted">Tatsächliches r</span>
-              <p class="font-mono text-lg text-accent-400">{{ actualR.toFixed(3) }}</p>
+              <p class="font-mono text-lg text-accent-400">
+                {{ currentX.length >= 2 ? actualR.toFixed(3) : '–' }}
+              </p>
             </div>
             <div class="rounded-lg bg-surface-700 px-4 py-2">
               <span class="text-xs text-text-muted">Stärke</span>
-              <p class="text-lg text-accent-300">{{ rLabel(actualR) }}</p>
+              <p class="text-lg text-accent-300">
+                {{ currentX.length >= 2 ? rLabel(actualR) : '–' }}
+              </p>
             </div>
           </div>
-          <div class="text-xs text-text-muted">n = 60 Datenpunkte</div>
+          <div class="text-xs text-text-muted">
+            n = {{ currentX.length }} Datenpunkte
+          </div>
         </div>
 
         <!-- r scale -->

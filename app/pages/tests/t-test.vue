@@ -49,7 +49,7 @@ const steps = computed(() => {
       <p class="mb-1 font-semibold text-accent-400">Beispiel: Energieaudit-Prüfung</p>
       <p>
         Laut Energieaudit soll eine Produktionshalle max. 140 MWh/Monat verbrauchen.
-        Du misst 10 Monate und willst prüfen, ob der reale Verbrauch signifikant über dem Sollwert liegt.
+        Du misst 10 Monate und willst prüfen, ob der reale Verbrauch signifikant vom Sollwert abweicht.
       </p>
     </div>
 
@@ -59,75 +59,49 @@ const steps = computed(() => {
       <div class="rounded-xl border border-surface-700 bg-surface-800 p-5 space-y-5">
         <!-- Core question -->
         <div>
-          <h3 class="mb-2 text-sm font-semibold text-accent-400">Die Kernfrage des T-Tests</h3>
+          <h3 class="mb-2 text-sm font-semibold text-accent-400">Die Kernfrage des Ein-Stichproben-T-Tests</h3>
           <p class="text-sm text-text-secondary">
-            <span class="font-semibold text-text-primary">Hat jede Variable in meinem Modell wirklich einen Einfluss?
-            Oder ist der Koeffizient nur zufällig ungleich Null?</span>
+            <span class="font-semibold text-text-primary">Weicht der Mittelwert meiner Stichprobe signifikant von einem
+            bekannten Referenzwert ab — oder ist der Unterschied nur Zufall?</span>
           </p>
           <p class="mt-2 text-sm text-text-secondary">
-            In einer Regression bekommt jede Variable einen Koeffizienten. Aber nur weil der Koeffizient
-            nicht exakt 0 ist, heißt das noch nicht, dass die Variable wirklich etwas beiträgt.
-            Der T-Test prüft genau das.
+            Du hast z.&nbsp;B. einen Sollwert aus einem Energieaudit. Deine Messwerte liegen etwas darüber.
+            Aber reicht das aus, um zu sagen „der Verbrauch ist wirklich höher"? Oder ist die Abweichung
+            nur natürliche Schwankung? Der t-Test gibt dir eine statistisch fundierte Antwort.
           </p>
         </div>
 
-        <!-- Table example -->
-        <div>
-          <h3 class="mb-2 text-sm font-semibold text-text-primary">Beispiel: Welche Variablen beeinflussen den Gasverbrauch?</h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b border-surface-600">
-                  <th class="px-3 py-2 text-left text-xs text-text-muted">Variable</th>
-                  <th class="px-3 py-2 text-left text-xs text-text-muted">Koeffizient</th>
-                  <th class="px-3 py-2 text-left text-xs text-text-muted">p-Wert</th>
-                  <th class="px-3 py-2 text-left text-xs text-text-muted">Signifikant?</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="border-b border-surface-700/50">
-                  <td class="px-3 py-2 text-text-primary">Temperatur</td>
-                  <td class="px-3 py-2 font-mono text-text-primary">-12.4</td>
-                  <td class="px-3 py-2 font-mono text-red-400">p &lt; 0,001</td>
-                  <td class="px-3 py-2"><span class="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Ja</span></td>
-                </tr>
-                <tr class="border-b border-surface-700/50">
-                  <td class="px-3 py-2 text-text-primary">Belegung</td>
-                  <td class="px-3 py-2 font-mono text-text-primary">+3.8</td>
-                  <td class="px-3 py-2 font-mono text-red-400">p = 0,002</td>
-                  <td class="px-3 py-2"><span class="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Ja</span></td>
-                </tr>
-                <tr>
-                  <td class="px-3 py-2 text-text-primary">Windstärke</td>
-                  <td class="px-3 py-2 font-mono text-text-primary">+0.2</td>
-                  <td class="px-3 py-2 font-mono text-text-muted">p = 0,684</td>
-                  <td class="px-3 py-2"><span class="rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">Nein</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="mt-2 text-xs text-text-muted">
-            Temperatur und Belegung haben einen signifikanten Einfluss auf den Gasverbrauch.
-            Windstärke dagegen nicht — der kleine Koeffizient könnte reiner Zufall sein.
-          </p>
-        </div>
-
-        <!-- T-Test vs F-Test -->
+        <!-- Münz-Analogie -->
         <div class="rounded-lg bg-surface-900 p-4">
-          <p class="mb-2 text-sm font-semibold text-text-primary">T-Test vs. F-Test — was ist der Unterschied?</p>
-          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <p class="mb-1 text-sm font-semibold text-text-primary">Die Münz-Analogie</p>
+          <p class="text-sm text-text-secondary">
+            Stell dir vor, eine faire Münze soll im Schnitt 50 % Kopf zeigen (= Referenzwert μ₀ = 50 %).
+            Du wirfst 20× und bekommst 65 % Kopf. Ist die Münze unfair — oder war das Zufall?
+            Der t-Test berechnet, wie wahrscheinlich dieses Ergebnis bei einer fairen Münze wäre.
+          </p>
+        </div>
+
+        <!-- Varianten-Überblick -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Varianten des T-Tests</h3>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div class="rounded-lg bg-surface-700 p-3">
-              <p class="text-xs font-semibold text-accent-400">T-Test</p>
-              <p class="mt-1 text-sm text-text-secondary">Prüft <span class="font-semibold text-text-primary">eine einzelne Variable</span>: Hat diese Variable einen signifikanten Einfluss?</p>
+              <p class="text-xs font-semibold text-accent-400">Ein-Stichproben</p>
+              <p class="mt-1 text-xs text-text-secondary">Vergleicht den Mittelwert einer Stichprobe mit einem festen Referenzwert μ₀.</p>
+              <p class="mt-1 text-xs text-accent-300">← Der Rechner unten</p>
             </div>
             <div class="rounded-lg bg-surface-700 p-3">
-              <p class="text-xs font-semibold text-accent-400">F-Test</p>
-              <p class="mt-1 text-sm text-text-secondary">Prüft das <span class="font-semibold text-text-primary">Gesamtmodell</span>: Erklärt das Modell als Ganzes die Daten besser als gar kein Modell?</p>
+              <p class="text-xs font-semibold text-text-muted">Zwei-Stichproben</p>
+              <p class="mt-1 text-xs text-text-secondary">Vergleicht die Mittelwerte zweier unabhängiger Gruppen (z.&nbsp;B. Gebäude A vs. B).</p>
+            </div>
+            <div class="rounded-lg bg-surface-700 p-3">
+              <p class="text-xs font-semibold text-text-muted">Gepaarter T-Test</p>
+              <p class="mt-1 text-xs text-text-secondary">Vergleicht Vorher-Nachher-Messungen am selben Objekt (z.&nbsp;B. vor/nach Sanierung).</p>
             </div>
           </div>
           <p class="mt-2 text-xs text-text-muted">
-            Es ist möglich, dass der F-Test signifikant ist (Modell insgesamt nützlich), aber einzelne T-Tests nicht
-            — manche Variablen tragen dann nichts bei und können entfernt werden.
+            In der Regression wird eine verwandte Form des t-Tests verwendet, um zu prüfen, ob einzelne Koeffizienten
+            signifikant von Null abweichen — das Grundprinzip ist dasselbe.
           </p>
         </div>
       </div>

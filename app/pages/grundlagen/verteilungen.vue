@@ -9,7 +9,7 @@ import {
   Filler,
   Tooltip,
 } from 'chart.js'
-import { normalCurvePoints } from '~/utils/stats'
+import { normalCurvePoints, normalPdf, normalCdf } from '~/utils/stats'
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip)
 
@@ -19,20 +19,62 @@ definePageMeta({ title: 'Verteilungen' })
 const mu = ref(150)
 const sigma = ref(20)
 
+// Probability calculator
+const probMode = ref<'less' | 'greater' | 'between'>('less')
+const probX = ref(170)
+const probX2 = ref(180)
+
+const probability = computed(() => {
+  const s = Math.max(sigma.value, 0.1)
+  if (probMode.value === 'less') return normalCdf(probX.value, mu.value, s)
+  if (probMode.value === 'greater') return 1 - normalCdf(probX.value, mu.value, s)
+  // between
+  const lo = Math.min(probX.value, probX2.value)
+  const hi = Math.max(probX.value, probX2.value)
+  return normalCdf(hi, mu.value, s) - normalCdf(lo, mu.value, s)
+})
+
 const chartData = computed(() => {
-  const { x, y } = normalCurvePoints(mu.value, Math.max(sigma.value, 0.1), 200, 4)
+  const s = Math.max(sigma.value, 0.1)
+  const { x, y } = normalCurvePoints(mu.value, s, 200, 4)
+
+  // Shaded area for probability
+  const shadedY = x.map((xi, i) => {
+    if (probMode.value === 'less' && xi <= probX.value) return y[i]
+    if (probMode.value === 'greater' && xi >= probX.value) return y[i]
+    if (probMode.value === 'between') {
+      const lo = Math.min(probX.value, probX2.value)
+      const hi = Math.max(probX.value, probX2.value)
+      if (xi >= lo && xi <= hi) return y[i]
+    }
+    return null
+  })
+
   return {
-    labels: x.map((v) => v.toFixed(2)),
+    labels: x.map((v) => v.toFixed(1)),
     datasets: [
       {
         label: 'f(x)',
         data: y,
         borderColor: '#818cf8',
-        backgroundColor: 'rgba(129, 140, 248, 0.1)',
+        backgroundColor: 'rgba(129, 140, 248, 0.05)',
         fill: true,
         tension: 0.4,
         pointRadius: 0,
         borderWidth: 2,
+        order: 2,
+      },
+      {
+        label: 'P(X)',
+        data: shadedY,
+        borderColor: 'rgba(99, 102, 241, 0.6)',
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        borderWidth: 0,
+        spanGaps: false,
+        order: 1,
       },
     ],
   }
@@ -173,6 +215,44 @@ const chartOptions = computed(() => ({
 
         <div class="h-72">
           <Line :data="chartData" :options="chartOptions" />
+        </div>
+
+        <!-- Probability calculator -->
+        <div class="mt-6 rounded-lg border border-surface-600 bg-surface-900/50 p-4">
+          <h3 class="mb-3 text-sm font-semibold text-accent-400">Wahrscheinlichkeit berechnen</h3>
+          <div class="mb-3 flex flex-wrap items-center gap-3">
+            <select
+              v-model="probMode"
+              class="rounded-lg border border-surface-600 bg-surface-800 px-3 py-1.5 text-sm text-text-primary outline-none focus:border-accent-500"
+            >
+              <option value="less">P(X &lt; x)</option>
+              <option value="greater">P(X &gt; x)</option>
+              <option value="between">P(a &lt; X &lt; b)</option>
+            </select>
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-text-secondary">{{ probMode === 'between' ? 'a =' : 'x =' }}</label>
+              <input
+                v-model.number="probX"
+                type="number"
+                class="w-24 rounded-lg border border-surface-600 bg-surface-800 px-3 py-1.5 font-mono text-sm text-text-primary outline-none focus:border-accent-500"
+              >
+            </div>
+            <div v-if="probMode === 'between'" class="flex items-center gap-2">
+              <label class="text-sm text-text-secondary">b =</label>
+              <input
+                v-model.number="probX2"
+                type="number"
+                class="w-24 rounded-lg border border-surface-600 bg-surface-800 px-3 py-1.5 font-mono text-sm text-text-primary outline-none focus:border-accent-500"
+              >
+            </div>
+            <div class="rounded-lg bg-accent-500/15 px-4 py-1.5">
+              <span class="text-sm text-text-secondary">= </span>
+              <span class="font-mono text-lg font-semibold text-accent-400">{{ (probability * 100).toFixed(2) }} %</span>
+            </div>
+          </div>
+          <p class="text-xs text-text-muted">
+            Die lila schattierte Fläche im Chart zeigt die berechnete Wahrscheinlichkeit.
+          </p>
         </div>
 
         <div class="mt-4 grid grid-cols-3 gap-4 text-center text-sm">

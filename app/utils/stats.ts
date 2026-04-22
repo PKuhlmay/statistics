@@ -254,6 +254,22 @@ function tCritical(alpha: number, df: number): number {
   return t
 }
 
+/** CDF of normal distribution using error function approximation */
+export function normalCdf(x: number, mu: number, sigma: number): number {
+  if (sigma <= 0) return x >= mu ? 1 : 0
+  const z = (x - mu) / (sigma * Math.SQRT2)
+  return 0.5 * (1 + erf(z))
+}
+
+/** Error function approximation (Abramowitz & Stegun) */
+function erf(x: number): number {
+  const sign = x >= 0 ? 1 : -1
+  const a = Math.abs(x)
+  const t = 1 / (1 + 0.3275911 * a)
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-a * a)
+  return sign * y
+}
+
 /** Variance Inflation Factor for each predictor */
 export function vif(predictors: number[][]): number[] {
   const k = predictors.length

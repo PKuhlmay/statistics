@@ -330,7 +330,7 @@ const lineChecks = [
           </div>
           <div class="rounded-lg bg-surface-700 p-4">
             <h3 class="mb-1 text-sm font-semibold text-accent-400">Elastic Net</h3>
-            <FormulaBlock formula="\lambda_1 \sum|\beta_j| + \lambda_2 \sum\beta_j^2" :display="false" />
+            <FormulaBlock formula="\min \sum(y_i - \hat{y}_i)^2 + \lambda_1 \sum|\beta_j| + \lambda_2 \sum\beta_j^2" :display="false" />
             <p class="mt-2 text-xs text-text-secondary">Kombination aus Ridge und Lasso — flexibelste Variante.</p>
           </div>
         </div>

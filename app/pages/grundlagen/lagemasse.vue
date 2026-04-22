@@ -40,6 +40,28 @@ const outlierStats = computed(() => ({
   median: median(outlierData.value),
 }))
 
+const newPointValue = ref<number | undefined>(undefined)
+
+function addPoint() {
+  if (newPointValue.value == null || Number.isNaN(newPointValue.value)) return
+  const values = [...data.value, newPointValue.value]
+  rawInput.value = values.join(', ')
+  newPointValue.value = undefined
+}
+
+function removeDataPoint(index: number) {
+  const values = [...data.value]
+  values.splice(index, 1)
+  rawInput.value = values.join(', ')
+}
+
+function addRandomPoint() {
+  const values = [...data.value]
+  const newVal = Math.round(130 + Math.random() * 50)
+  values.push(newVal)
+  rawInput.value = values.join(', ')
+}
+
 // Energy domain example
 const energyExample = `Ein Industriebetrieb verbraucht monatlich 137–165 MWh Strom (Produktion + Kühlung).
 Im August springt der Wert auf 312 MWh — eine Kältemaschine lief im Dauerbetrieb wegen eines defekten Thermostats.
@@ -76,7 +98,7 @@ Der Mittelwert steigt drastisch — der Median bleibt stabil.`
             Alle Werte zusammenzählen und durch die Anzahl teilen — fertig.
           </p>
           <div class="mb-2 rounded-lg bg-surface-900 px-4 py-2 font-mono text-sm text-text-muted">
-            (142 + 158 + 137 + 165 + 148 + 152 + 145 + 312) / 8 = 169,9
+            (142 + 158 + 137 + 165 + 148 + 152 + 145 + 312) / 8 = 169,88
           </div>
           <div class="flex gap-4 text-sm">
             <span class="text-green-400">+ Einfach zu berechnen, nutzt alle Werte</span>
@@ -94,11 +116,11 @@ Der Mittelwert steigt drastisch — der Median bleibt stabil.`
             Bei einer geraden Anzahl nimmt man den Durchschnitt der beiden mittleren Werte.
           </p>
           <div class="mb-2 rounded-lg bg-surface-900 px-4 py-3 font-mono text-sm text-text-muted">
-            <div class="mb-1">Sortiert: 137, 142, 145, 148, <span class="text-accent-300">152</span>, 158, 165, 312</div>
+            <div class="mb-1">Sortiert: 137, 142, 145, <span class="text-accent-300">148</span>, <span class="text-accent-300">152</span>, 158, 165, 312</div>
             <div>Mitte: (148 + 152) / 2 = <span class="text-accent-300">150</span></div>
           </div>
           <p class="mb-2 text-sm text-text-secondary">
-            Obwohl 312 MWh dabei ist, bleibt der Median bei 150 — viel näher am tatsächlichen Normalverbrauch als der Mittelwert (169,9).
+            Obwohl 312 MWh dabei ist, bleibt der Median bei 150 — viel näher am tatsächlichen Normalverbrauch als der Mittelwert (169,88).
           </p>
           <div class="text-sm text-green-400">+ Robust gegen Ausreißer — ideal bei schiefen Verteilungen</div>
         </div>
@@ -165,11 +187,62 @@ Der Mittelwert steigt drastisch — der Median bleibt stabil.`
       <h2 class="mb-4 text-xl font-semibold">Rechner</h2>
       <div class="rounded-xl border border-surface-700 bg-surface-800 p-5">
         <label class="mb-2 block text-sm text-text-secondary">Datensatz (kommagetrennt):</label>
-        <input
-          v-model="rawInput"
-          type="text"
-          class="mb-4 w-full rounded-lg border border-surface-600 bg-surface-900 px-4 py-2 font-mono text-sm text-text-primary outline-none focus:border-accent-500"
-        >
+        <div class="mb-4 flex gap-2">
+          <input
+            v-model="rawInput"
+            type="text"
+            class="flex-1 rounded-lg border border-surface-600 bg-surface-900 px-4 py-2 font-mono text-sm text-text-primary outline-none focus:border-accent-500"
+          >
+          <input
+            v-model.number="newPointValue"
+            type="number"
+            placeholder="Neuer Wert"
+            class="w-28 rounded-lg border border-surface-600 bg-surface-900 px-3 py-2 font-mono text-sm text-text-primary outline-none focus:border-accent-500"
+            @keydown.enter="addPoint"
+          >
+          <button
+            class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-400"
+            @click="addPoint"
+          >
+            + Hinzufügen
+          </button>
+        </div>
+
+        <!-- Visual dot plot -->
+        <div v-if="stats" class="mb-4 rounded-lg bg-surface-900 p-4">
+          <div class="mb-2 flex items-center justify-between text-xs text-text-muted">
+            <span>{{ stats.min }}</span>
+            <span>Klicke auf einen Punkt zum Entfernen</span>
+            <span>{{ stats.max }}</span>
+          </div>
+          <div class="relative h-12">
+            <!-- Scale line -->
+            <div class="absolute left-0 right-0 top-1/2 h-px bg-surface-600" />
+            <!-- Mean marker -->
+            <div
+              class="absolute top-0 h-full w-px bg-accent-400/50"
+              :style="{ left: `${((stats.mean - stats.min) / (stats.max - stats.min)) * 100}%` }"
+            >
+              <span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[10px] text-accent-400">x&#772;</span>
+            </div>
+            <!-- Median marker -->
+            <div
+              class="absolute top-0 h-full w-px bg-accent-300/50 border-dashed"
+              :style="{ left: `${((stats.median - stats.min) / (stats.max - stats.min)) * 100}%` }"
+            >
+              <span class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-accent-300">x&#771;</span>
+            </div>
+            <!-- Data points -->
+            <button
+              v-for="(val, i) in data"
+              :key="i"
+              class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-2 border-accent-500 bg-accent-500/30 transition-all hover:scale-150 hover:bg-red-500/50 hover:border-red-400"
+              :style="{ left: `${((val - stats.min) / (stats.max - stats.min)) * 100}%` }"
+              :title="`${val} — klicken zum Entfernen`"
+              @click="removeDataPoint(i)"
+            />
+          </div>
+        </div>
 
         <div v-if="stats" class="grid grid-cols-3 gap-4">
           <div class="rounded-lg bg-surface-700 p-4 text-center">

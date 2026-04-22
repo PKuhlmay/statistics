@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   srcDir: 'app/',
   modules: ['@nuxt/eslint'],
   devtools: { enabled: true },
-  css: ['~/assets/css/main.css'],
+  css: ['katex/dist/katex.min.css', '~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()],
   },

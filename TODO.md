@@ -6,10 +6,10 @@
 - [x] Dashboard / Startseite (Themenübersicht)
 
 ## Phase 2 — Grundlagen
-- [ ] Lagemaße: Mittelwert, Median, Modus + Outlier-Tool
-- [ ] Streuungsmaße: Standardabweichung, IQR + Distribution Explorer
-- [ ] Verteilungen: Normalverteilung, Histogramm + interaktiver Slider (μ/σ)
-- [ ] Korrelation: Pearson r + Correlation Slider Tool
+- [x] Lagemaße: Mittelwert, Median, Modus + Outlier-Tool
+- [x] Streuungsmaße: Standardabweichung, IQR + Distribution Explorer
+- [x] Verteilungen: Normalverteilung, Histogramm + interaktiver Slider (μ/σ)
+- [x] Korrelation: Pearson r + Correlation Slider Tool
 
 ## Phase 3 — Lineare Regression
 - [ ] Einfache lineare Regression: Theorie + Regression Sandbox (Punkte ziehen)

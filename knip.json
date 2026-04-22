@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "app/app.vue",
+    "app/pages/**/*.vue",
+    "app/layouts/**/*.vue",
+    "app/components/**/*.{ts,vue}",
+    "app/composables/**/*.ts",
+    "app/plugins/**/*.ts",
+    "server/api/**/*.ts",
+    "server/middleware/**/*.ts",
+    "nuxt.config.ts"
+  ],
+  "ignore": [
+    ".nuxt/**",
+    ".output/**"
+  ]
+}

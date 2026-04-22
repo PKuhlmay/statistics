@@ -17,11 +17,11 @@
 - [x] Voraussetzungen (LINE) + Residuenplot-Visualisierung
 
 ## Phase 4 — Statistische Tests
-- [ ] p-Wert: Erklärung + Hypothesentest-Rechner
-- [ ] T-Test: Formel + interaktiver Rechner
-- [ ] F-Test: Erklärung + Rechner
-- [ ] Grubbs-Test: Ausreißer-Tool
-- [ ] VIF: Multikollinearitäts-Rechner
+- [x] p-Wert: Erklärung + Hypothesentest-Rechner
+- [x] T-Test: Formel + interaktiver Rechner
+- [x] F-Test: Erklärung + Rechner
+- [x] Grubbs-Test: Ausreißer-Tool
+- [x] VIF: Multikollinearitäts-Rechner
 
 ## Phase 5 — ML-Modelle
 - [ ] Überblick MESSDAS-Forecast-Modelle (ExtraTrees, RandomForest, Prophet, BlockRNN, LinearRegression)

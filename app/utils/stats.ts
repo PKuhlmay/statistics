@@ -77,6 +77,200 @@ export function pearsonR(x: number[], y: number[]): number {
   return denom === 0 ? 0 : num / denom
 }
 
+// --- Statistical distributions ---
+
+/** Approximation of the regularized incomplete beta function I_x(a, b) */
+function betaIncomplete(x: number, a: number, b: number): number {
+  if (x <= 0) return 0
+  if (x >= 1) return 1
+  // Continued fraction (Lentz's method)
+  const maxIter = 200
+  const eps = 1e-14
+  const lnBeta = lnGamma(a) + lnGamma(b) - lnGamma(a + b)
+  const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lnBeta) / a
+
+  let f = 1
+  let c = 1
+  let d = 1 - ((a + b) * x) / (a + 1)
+  if (Math.abs(d) < 1e-30) d = 1e-30
+  d = 1 / d
+  f = d
+
+  for (let i = 1; i <= maxIter; i++) {
+    const m = i
+    // Even step
+    let num = (m * (b - m) * x) / ((a + 2 * m - 1) * (a + 2 * m))
+    d = 1 + num * d
+    if (Math.abs(d) < 1e-30) d = 1e-30
+    c = 1 + num / c
+    if (Math.abs(c) < 1e-30) c = 1e-30
+    d = 1 / d
+    f *= d * c
+
+    // Odd step
+    num = -((a + m) * (a + b + m) * x) / ((a + 2 * m) * (a + 2 * m + 1))
+    d = 1 + num * d
+    if (Math.abs(d) < 1e-30) d = 1e-30
+    c = 1 + num / c
+    if (Math.abs(c) < 1e-30) c = 1e-30
+    d = 1 / d
+    const delta = d * c
+    f *= delta
+
+    if (Math.abs(delta - 1) < eps) break
+  }
+
+  return front * f
+}
+
+/** Log-gamma via Lanczos approximation */
+function lnGamma(z: number): number {
+  const g = 7
+  const c = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
+  ]
+  if (z < 0.5) {
+    return Math.log(Math.PI / Math.sin(Math.PI * z)) - lnGamma(1 - z)
+  }
+  z -= 1
+  let x = c[0]
+  for (let i = 1; i < g + 2; i++) {
+    x += c[i] / (z + i)
+  }
+  const t = z + g + 0.5
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x)
+}
+
+/** CDF of Student's t-distribution */
+export function tDistCdf(t: number, df: number): number {
+  const x = df / (df + t * t)
+  const ib = betaIncomplete(x, df / 2, 0.5)
+  return t >= 0 ? 1 - 0.5 * ib : 0.5 * ib
+}
+
+/** CDF of F-distribution */
+export function fDistCdf(f: number, df1: number, df2: number): number {
+  if (f <= 0) return 0
+  const x = (df1 * f) / (df1 * f + df2)
+  return 1 - betaIncomplete(1 - x, df2 / 2, df1 / 2)
+}
+
+// --- Statistical tests ---
+
+/** One-sample t-test: H0: μ = mu0 */
+export function tTest(
+  sample: number[],
+  mu0: number,
+): { tStat: number; pValue: number; df: number; sampleMean: number; sampleStd: number } {
+  const n = sample.length
+  if (n < 2) return { tStat: 0, pValue: 1, df: 0, sampleMean: 0, sampleStd: 0 }
+  const m = mean(sample)
+  const s = standardDeviation(sample)
+  const se = s / Math.sqrt(n)
+  const tStat = se === 0 ? 0 : (m - mu0) / se
+  const df = n - 1
+  // Two-tailed p-value
+  const pValue = 2 * (1 - tDistCdf(Math.abs(tStat), df))
+  return { tStat, pValue, df, sampleMean: m, sampleStd: s }
+}
+
+/** Two-sample F-test for equality of variances: H0: σ1² = σ2² */
+export function fTest(
+  sample1: number[],
+  sample2: number[],
+): { fStat: number; pValue: number; df1: number; df2: number; var1: number; var2: number } {
+  const v1 = variance(sample1)
+  const v2 = variance(sample2)
+  const df1 = sample1.length - 1
+  const df2 = sample2.length - 1
+  if (v2 === 0) return { fStat: 0, pValue: 1, df1, df2, var1: v1, var2: v2 }
+  const fStat = v1 / v2
+  // Two-tailed: p = 2 * min(P(F > f), P(F < f))
+  const pRight = 1 - fDistCdf(fStat, df1, df2)
+  const pLeft = fDistCdf(fStat, df1, df2)
+  const pValue = 2 * Math.min(pRight, pLeft)
+  return { fStat, pValue: Math.min(pValue, 1), df1, df2, var1: v1, var2: v2 }
+}
+
+/** Grubbs test for a single outlier */
+export function grubbs(
+  data: number[],
+): { outlier: number; outlierIndex: number; gStat: number; critical: number; isOutlier: boolean } {
+  const n = data.length
+  if (n < 3) return { outlier: 0, outlierIndex: -1, gStat: 0, critical: 0, isOutlier: false }
+  const m = mean(data)
+  const s = standardDeviation(data)
+  if (s === 0) return { outlier: data[0], outlierIndex: 0, gStat: 0, critical: 0, isOutlier: false }
+
+  // Find the value farthest from mean
+  let maxDev = 0
+  let outlierIndex = 0
+  for (let i = 0; i < n; i++) {
+    const dev = Math.abs(data[i] - m)
+    if (dev > maxDev) {
+      maxDev = dev
+      outlierIndex = i
+    }
+  }
+
+  const gStat = maxDev / s
+
+  // Critical value at α = 0.05 (two-sided), using t-distribution approximation
+  const alpha = 0.05
+  const tAlpha = tCritical(alpha / (2 * n), n - 2)
+  const critical = ((n - 1) / Math.sqrt(n)) * Math.sqrt((tAlpha * tAlpha) / (n - 2 + tAlpha * tAlpha))
+
+  return {
+    outlier: data[outlierIndex],
+    outlierIndex,
+    gStat,
+    critical,
+    isOutlier: gStat > critical,
+  }
+}
+
+/** Approximate t critical value using inverse t-distribution (Newton's method) */
+function tCritical(alpha: number, df: number): number {
+  // Initial guess from normal approximation
+  const a = alpha < 0.5 ? alpha : 1 - alpha
+  const z = Math.sqrt(-2 * Math.log(a)) - (2.515517 + 0.802853 * Math.sqrt(-2 * Math.log(a)) + 0.010328 * (-2 * Math.log(a))) /
+    (1 + 1.432788 * Math.sqrt(-2 * Math.log(a)) + 0.189269 * (-2 * Math.log(a)) + 0.001308 * (-2 * Math.log(a)) * Math.sqrt(-2 * Math.log(a)))
+  let t = z + (z * z * z + z) / (4 * df) // Cornish-Fisher correction
+
+  // Newton refinement
+  for (let i = 0; i < 10; i++) {
+    const cdf = tDistCdf(t, df)
+    const target = 1 - alpha
+    const diff = cdf - target
+    if (Math.abs(diff) < 1e-10) break
+    // PDF of t-distribution
+    const pdf = Math.exp(lnGamma((df + 1) / 2) - lnGamma(df / 2) - 0.5 * Math.log(df * Math.PI) - ((df + 1) / 2) * Math.log(1 + (t * t) / df))
+    if (pdf === 0) break
+    t -= diff / pdf
+  }
+
+  return t
+}
+
+/** Variance Inflation Factor for each predictor */
+export function vif(predictors: number[][]): number[] {
+  const k = predictors.length
+  if (k < 2) return predictors.map(() => 1)
+
+  const result: number[] = []
+  for (let j = 0; j < k; j++) {
+    // Regress predictor j on all other predictors
+    const y = predictors[j]
+    const others = predictors.filter((_, i) => i !== j)
+    const reg = multipleRegression(others, y)
+    const r2 = Math.min(reg.r2, 0.9999) // prevent division by zero
+    result.push(1 / (1 - r2))
+  }
+  return result
+}
+
 /** Simple OLS regression: y = beta0 + beta1 * x */
 export function olsRegression(x: number[], y: number[]): {
   beta0: number

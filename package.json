@@ -37,6 +37,7 @@
     "@nuxt/scripts": "^1.0.1",
     "@tailwindcss/vite": "^4.2.4",
     "@types/katex": "^0.16.7",
+    "@vite-pwa/nuxt": "^1.1.1",
     "@vueuse/nuxt": "^14.2.1",
     "knip": "^6.6.1",
     "oxfmt": "^0.46.0",

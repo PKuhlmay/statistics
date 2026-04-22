@@ -64,12 +64,12 @@ function isSectionActive(basePath: string): boolean {
   <div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
     <aside
-      class="flex flex-col border-r border-surface-700 bg-surface-800 transition-all duration-300"
+      class="flex flex-col border-r border-surface-700 bg-gradient-to-b from-surface-800 to-surface-900 transition-all duration-300"
       :class="sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'"
     >
       <!-- Logo -->
       <div class="flex h-16 items-center gap-3 border-b border-surface-700 px-5">
-        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-500 text-sm font-bold text-white">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500 to-accent-400 text-sm font-bold text-white shadow-lg shadow-accent-500/25">
           S
         </div>
         <span class="text-lg font-semibold tracking-tight">Statistik</span>
@@ -100,7 +100,7 @@ function isSectionActive(basePath: string): boolean {
               <NuxtLink
                 :to="item.to"
                 class="flex items-center rounded-lg px-3 py-1.5 text-sm transition-colors"
-                :class="isActive(item.to) ? 'bg-accent-500/15 text-accent-400' : 'text-text-secondary hover:bg-surface-700 hover:text-text-primary'"
+                :class="isActive(item.to) ? 'bg-accent-500/10 text-accent-400 border-l-2 border-accent-500' : 'text-text-secondary hover:bg-surface-700/50 hover:text-text-primary border-l-2 border-transparent'"
               >
                 {{ item.label }}
               </NuxtLink>
@@ -113,7 +113,7 @@ function isSectionActive(basePath: string): boolean {
     <!-- Main content -->
     <div class="flex flex-1 flex-col overflow-hidden">
       <!-- Top bar -->
-      <header class="flex h-16 items-center gap-4 border-b border-surface-700 bg-surface-800/50 px-6">
+      <header class="flex h-16 items-center gap-4 border-b border-surface-700 bg-surface-800/80 px-6 backdrop-blur-sm">
         <button
           class="rounded-lg p-2 text-text-secondary transition-colors hover:bg-surface-700 hover:text-text-primary"
           @click="sidebarOpen = !sidebarOpen"
@@ -134,7 +134,7 @@ function isSectionActive(basePath: string): boolean {
       </header>
 
       <!-- Page content -->
-      <main class="flex-1 overflow-y-auto p-8">
+      <main class="flex-1 overflow-y-auto scroll-smooth p-8">
         <slot />
       </main>
     </div>

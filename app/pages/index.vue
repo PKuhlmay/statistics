@@ -49,14 +49,18 @@ const topics: TopicCard[] = [
 <template>
   <div class="mx-auto max-w-5xl">
     <!-- Hero -->
-    <div class="mb-12">
-      <h1 class="mb-3 text-4xl font-bold tracking-tight">
-        Statistik <span class="text-accent-400">interaktiv</span> lernen
-      </h1>
-      <p class="max-w-2xl text-lg text-text-secondary">
-        Abstrakte Konzepte greifbar machen — mit Live-Beispielen aus dem Energiemanagement,
-        interaktiven Rechnern und Schritt-für-Schritt-Erklärungen.
-      </p>
+    <div class="relative mb-12 overflow-hidden rounded-2xl border border-surface-700 bg-gradient-to-br from-surface-800 via-surface-800 to-accent-500/10 p-8 md:p-10">
+      <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accent-500/5 blur-3xl" />
+      <div class="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accent-400/5 blur-3xl" />
+      <div class="relative">
+        <h1 class="mb-3 text-4xl font-bold tracking-tight md:text-5xl">
+          Statistik <span class="bg-gradient-to-r from-accent-400 to-accent-300 bg-clip-text text-transparent">interaktiv</span> lernen
+        </h1>
+        <p class="max-w-2xl text-lg leading-relaxed text-text-secondary">
+          Abstrakte Konzepte greifbar machen — mit Live-Beispielen aus dem Energiemanagement,
+          interaktiven Rechnern und Schritt-für-Schritt-Erklärungen.
+        </p>
+      </div>
     </div>
 
     <!-- Topic cards -->
@@ -65,7 +69,7 @@ const topics: TopicCard[] = [
         v-for="topic in topics"
         :key="topic.title"
         :to="topic.to"
-        class="group rounded-xl border border-surface-700 bg-surface-800 p-6 transition-all hover:border-accent-500/50 hover:shadow-lg hover:shadow-accent-500/5"
+        class="group relative overflow-hidden rounded-xl border border-surface-700 bg-surface-800 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-500/40 hover:shadow-xl hover:shadow-accent-500/10"
       >
         <div class="mb-4 flex items-center justify-between">
           <span class="text-3xl">{{ topic.icon }}</span>

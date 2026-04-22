@@ -1,33 +1,94 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-surface-900: #0f1117;
-  --color-surface-800: #181a24;
-  --color-surface-700: #232635;
-  --color-surface-600: #2e3246;
-  --color-surface-500: #3d4259;
+  --color-surface-900: #0b0d14;
+  --color-surface-800: #141722;
+  --color-surface-700: #1e2233;
+  --color-surface-600: #282d42;
+  --color-surface-500: #363c56;
 
   --color-accent-500: #6366f1;
   --color-accent-400: #818cf8;
   --color-accent-300: #a5b4fc;
 
-  --color-text-primary: #e2e8f0;
+  --color-text-primary: #e8ecf4;
   --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-text-muted: #5a6478;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   @apply bg-surface-900 text-text-primary font-sans antialiased;
 }
 
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #282d42;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #363c56;
+}
+
 /* KaTeX formula styling */
 .katex-display {
-  @apply my-4 overflow-x-auto;
+  @apply my-2 overflow-x-auto;
 }
 
 .katex {
-  @apply text-accent-300;
-  font-size: 1.1em;
+  color: #c4b5fd;
+  font-size: 1.15em;
+}
+
+/* Input range slider styling */
+input[type='range'] {
+  height: 6px;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #818cf8;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.4);
+  transition: box-shadow 0.2s;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 14px rgba(129, 140, 248, 0.6);
+}
+
+/* Table improvements */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Smooth transitions for all interactive elements */
+a, button, input, select {
+  transition: all 0.15s ease;
+}
+
+/* Focus styles */
+input:focus, select:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }

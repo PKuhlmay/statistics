@@ -12,9 +12,9 @@
 - [x] Korrelation: Pearson r + Correlation Slider Tool
 
 ## Phase 3 — Lineare Regression
-- [ ] Einfache lineare Regression: Theorie + Regression Sandbox (Punkte ziehen)
-- [ ] Multiple Regression: Theorie + Koeffizientenrechner
-- [ ] Voraussetzungen (LINE) + Residuenplot-Visualisierung
+- [x] Einfache lineare Regression: Theorie + Regression Sandbox (Punkte ziehen)
+- [x] Multiple Regression: Theorie + Koeffizientenrechner
+- [x] Voraussetzungen (LINE) + Residuenplot-Visualisierung
 
 ## Phase 4 — Statistische Tests
 - [ ] p-Wert: Erklärung + Hypothesentest-Rechner

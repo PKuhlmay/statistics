@@ -77,6 +77,162 @@ export function pearsonR(x: number[], y: number[]): number {
   return denom === 0 ? 0 : num / denom
 }
 
+/** Simple OLS regression: y = beta0 + beta1 * x */
+export function olsRegression(x: number[], y: number[]): {
+  beta0: number
+  beta1: number
+  r2: number
+  residuals: number[]
+  predicted: number[]
+} {
+  const n = Math.min(x.length, y.length)
+  if (n < 2) return { beta0: 0, beta1: 0, r2: 0, residuals: [], predicted: [] }
+
+  const mx = mean(x.slice(0, n))
+  const my = mean(y.slice(0, n))
+
+  let ssXY = 0
+  let ssXX = 0
+  for (let i = 0; i < n; i++) {
+    ssXY += (x[i] - mx) * (y[i] - my)
+    ssXX += (x[i] - mx) ** 2
+  }
+
+  const beta1 = ssXX === 0 ? 0 : ssXY / ssXX
+  const beta0 = my - beta1 * mx
+
+  const predicted = x.slice(0, n).map((xi) => beta0 + beta1 * xi)
+  const residuals = y.slice(0, n).map((yi, i) => yi - predicted[i])
+
+  // R² = 1 - SS_res / SS_tot
+  const ssTot = y.slice(0, n).reduce((sum, yi) => sum + (yi - my) ** 2, 0)
+  const ssRes = residuals.reduce((sum, r) => sum + r * r, 0)
+  const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot
+
+  return { beta0, beta1, r2, residuals, predicted }
+}
+
+/** Multiple OLS regression: y = b0 + b1*x1 + b2*x2 + ... */
+export function multipleRegression(
+  predictors: number[][],
+  y: number[],
+): {
+  coefficients: number[]
+  intercept: number
+  r2: number
+  adjR2: number
+  residuals: number[]
+} {
+  const n = y.length
+  const k = predictors.length
+  if (n < k + 2) return { coefficients: [], intercept: 0, r2: 0, adjR2: 0, residuals: [] }
+
+  // Build X matrix with intercept column [1, x1, x2, ...]
+  const X: number[][] = []
+  for (let i = 0; i < n; i++) {
+    const row = [1]
+    for (let j = 0; j < k; j++) {
+      row.push(predictors[j][i])
+    }
+    X.push(row)
+  }
+
+  // Normal equation: (X'X)^-1 X'y
+  const cols = k + 1
+  const XtX = matMul(transpose(X), X)
+  const Xty = matVecMul(transpose(X), y)
+  const XtXinv = invertMatrix(XtX)
+  if (!XtXinv) return { coefficients: [], intercept: 0, r2: 0, adjR2: 0, residuals: [] }
+
+  const beta: number[] = []
+  for (let i = 0; i < cols; i++) {
+    let val = 0
+    for (let j = 0; j < cols; j++) {
+      val += XtXinv[i][j] * Xty[j]
+    }
+    beta.push(val)
+  }
+
+  const intercept = beta[0]
+  const coefficients = beta.slice(1)
+
+  const predicted = X.map((row) => row.reduce((sum, xi, j) => sum + xi * beta[j], 0))
+  const residuals = y.map((yi, i) => yi - predicted[i])
+
+  const my = mean(y)
+  const ssTot = y.reduce((sum, yi) => sum + (yi - my) ** 2, 0)
+  const ssRes = residuals.reduce((sum, r) => sum + r * r, 0)
+  const r2 = ssTot === 0 ? 0 : 1 - ssRes / ssTot
+  const adjR2 = 1 - ((1 - r2) * (n - 1)) / (n - k - 1)
+
+  return { coefficients, intercept, r2, adjR2, residuals }
+}
+
+// --- Matrix helpers for multiple regression ---
+
+function transpose(m: number[][]): number[][] {
+  const rows = m.length
+  const cols = m[0].length
+  const t: number[][] = Array.from({ length: cols }, () => Array(rows).fill(0))
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      t[j][i] = m[i][j]
+    }
+  }
+  return t
+}
+
+function matMul(a: number[][], b: number[][]): number[][] {
+  const rows = a.length
+  const cols = b[0].length
+  const inner = b.length
+  const result: number[][] = Array.from({ length: rows }, () => Array(cols).fill(0))
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      for (let k = 0; k < inner; k++) {
+        result[i][j] += a[i][k] * b[k][j]
+      }
+    }
+  }
+  return result
+}
+
+function matVecMul(m: number[][], v: number[]): number[] {
+  return m.map((row) => row.reduce((sum, val, j) => sum + val * v[j], 0))
+}
+
+function invertMatrix(m: number[][]): number[][] | null {
+  const n = m.length
+  // Augmented matrix [m | I]
+  const aug: number[][] = m.map((row, i) => {
+    const extended = [...row]
+    for (let j = 0; j < n; j++) extended.push(i === j ? 1 : 0)
+    return extended
+  })
+
+  for (let col = 0; col < n; col++) {
+    // Pivot
+    let maxRow = col
+    for (let row = col + 1; row < n; row++) {
+      if (Math.abs(aug[row][col]) > Math.abs(aug[maxRow][col])) maxRow = row
+    }
+    ;[aug[col], aug[maxRow]] = [aug[maxRow], aug[col]]
+
+    if (Math.abs(aug[col][col]) < 1e-12) return null
+
+    const pivot = aug[col][col]
+    for (let j = 0; j < 2 * n; j++) aug[col][j] /= pivot
+
+    for (let row = 0; row < n; row++) {
+      if (row === col) continue
+      const factor = aug[row][col]
+      for (let j = 0; j < 2 * n; j++) aug[row][j] -= factor * aug[col][j]
+    }
+  }
+
+  return aug.map((row) => row.slice(n))
+}
+
 /** Normal distribution PDF */
 export function normalPdf(x: number, mu: number, sigma: number): number {
   if (sigma <= 0) return 0

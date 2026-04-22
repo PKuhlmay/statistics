@@ -1,0 +1,5 @@
+{
+  "plugins": ["vue"],
+  "rules": {},
+  "ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", ".worktrees"]
+}

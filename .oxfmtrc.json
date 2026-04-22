@@ -1,0 +1,18 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "printWidth": 100,
+  "vueIndentScriptAndStyle": false,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules",
+    ".nuxt",
+    ".output",
+    "dist",
+    "pnpm-lock.yaml",
+    ".worktrees",
+    "docs"
+  ]
+}

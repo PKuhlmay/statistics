@@ -1,9 +1,9 @@
 # Statistic Learning — TODO
 
 ## Phase 1 — Setup
-- [ ] Nuxt 3 Projekt initialisieren (Tailwind v4, KaTeX, vue-chartjs)
-- [ ] Layout: Sidebar-Navigation + Hauptbereich
-- [ ] Dashboard / Startseite (Themenübersicht)
+- [x] Nuxt 3 Projekt initialisieren (Tailwind v4, KaTeX, vue-chartjs)
+- [x] Layout: Sidebar-Navigation + Hauptbereich
+- [x] Dashboard / Startseite (Themenübersicht)
 
 ## Phase 2 — Grundlagen
 - [ ] Lagemaße: Mittelwert, Median, Modus + Outlier-Tool

@@ -1,14 +1,23 @@
-/tmp
-/out-tsc
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
 
-/node_modules
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-/.pnp
-.pnp.js
+# Node dependencies
+node_modules
 
-.vscode/*
-/.idea/modules.xml
-/.idea/statistic-learning.iml
-/.idea/vcs.xml
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example

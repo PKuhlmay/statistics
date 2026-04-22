@@ -162,3 +162,9 @@ Commit format:
 [FEATURE] - Add linear regression interactive sandbox
 [BUGFIX] - Fix OLS calculation for single-point edge case
 ```
+
+---
+
+## Workflow
+
+- Nach Abschluss jedes TODO-Punkts: den Punkt in `TODO.md` abhaken (`- [x]`)

@@ -1,14 +1,36 @@
 {
   "name": "statistic-learning",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc"
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
   },
-  "dependencies": {},
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "katex": "^0.16.45",
+    "nuxt": "^3.21.2",
+    "vue": "^3.5.13",
+    "vue-chartjs": "^5.3.3",
+    "vue-router": "^4.5.1"
+  },
   "devDependencies": {
-    "typescript": "^5.5.3"
+    "@nuxt/eslint": "^1.15.2",
+    "@tailwindcss/vite": "^4.2.4",
+    "@types/katex": "^0.16.7",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^5.8.3",
+    "vue-tsc": "^2.2.8"
   },
-  "private": true
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  }
 }

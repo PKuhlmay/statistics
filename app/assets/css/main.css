@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-surface-900: #0f1117;
+  --color-surface-800: #181a24;
+  --color-surface-700: #232635;
+  --color-surface-600: #2e3246;
+  --color-surface-500: #3d4259;
+
+  --color-accent-500: #6366f1;
+  --color-accent-400: #818cf8;
+  --color-accent-300: #a5b4fc;
+
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+body {
+  @apply bg-surface-900 text-text-primary font-sans antialiased;
+}
+
+/* KaTeX formula styling */
+.katex-display {
+  @apply my-4 overflow-x-auto;
+}
+
+.katex {
+  @apply text-accent-300;
+  font-size: 1.1em;
+}

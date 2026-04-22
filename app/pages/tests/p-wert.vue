@@ -16,8 +16,9 @@ ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, 
 definePageMeta({ title: 'p-Wert' })
 
 // Interactive hypothesis test
-const rawInput = ref('22.1, 23.5, 21.8, 24.2, 22.7, 23.1, 22.5, 23.8, 21.9, 22.4')
-const mu0 = ref(22)
+// Monthly gas consumption (MWh) — testing against energy certificate target
+const rawInput = ref('148, 162, 139, 171, 155, 158, 144, 167, 141, 153')
+const mu0 = ref(140)
 const alpha = ref(0.05)
 
 const data = computed(() =>
@@ -109,12 +110,111 @@ const chartOptions = {
     </p>
 
     <div class="mb-8 rounded-lg border border-surface-700 bg-surface-800 p-5 text-sm text-text-secondary">
-      <p class="mb-1 font-semibold text-accent-400">Beispiel: Energieverbrauch-Prüfung</p>
+      <p class="mb-1 font-semibold text-accent-400">Beispiel: Energieausweis-Prüfung</p>
       <p>
-        Ein Gebäude soll laut Energieausweis durchschnittlich 22 MWh/Monat verbrauchen.
-        Du misst 10 Monate und willst prüfen: Weicht der tatsächliche Verbrauch
-        signifikant vom Sollwert ab?
+        Eine Industriehalle soll laut Energieausweis maximal 140 MWh/Monat verbrauchen.
+        Du misst 10 Monate und willst prüfen: Liegt der tatsächliche Verbrauch
+        signifikant über dem Sollwert?
       </p>
+    </div>
+
+    <!-- Schritt für Schritt Erklärung -->
+    <div class="mb-8">
+      <h2 class="mb-4 text-xl font-semibold">Schritt für Schritt</h2>
+      <div class="rounded-xl border border-surface-700 bg-surface-800 p-5 space-y-5">
+        <!-- Was ist der p-Wert? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-accent-400">Was ist der p-Wert?</h3>
+          <p class="text-sm text-text-secondary">
+            Der p-Wert beantwortet eine einfache Frage:
+            <span class="font-semibold text-text-primary">Wie wahrscheinlich wäre es, dieses Ergebnis durch Zufall zu bekommen, wenn eigentlich nichts passiert wäre?</span>
+          </p>
+        </div>
+
+        <!-- Münz-Analogie -->
+        <div class="rounded-lg bg-surface-900 p-4">
+          <p class="mb-1 text-sm font-semibold text-text-primary">Die Münz-Analogie</p>
+          <p class="text-sm text-text-secondary">
+            Stell dir vor, jemand behauptet, eine faire Münze zu haben. Dann wirft er 10x Kopf hintereinander.
+            Wahrscheinlichkeit bei einer fairen Münze: <span class="font-mono text-red-400">0,1 %</span>.
+            Die Münze ist wahrscheinlich nicht fair!
+          </p>
+          <p class="mt-2 text-xs text-text-muted">
+            Der p-Wert wäre hier 0,001 — extrem unwahrscheinlich unter der Annahme "faire Münze" (= Nullhypothese).
+          </p>
+        </div>
+
+        <!-- Energie-Beispiel -->
+        <div class="rounded-lg bg-surface-900 p-4">
+          <p class="mb-1 text-sm font-semibold text-accent-400">Praxisbeispiel: Gebäudesanierung</p>
+          <p class="text-sm text-text-secondary">
+            Hat die Sanierung den Gasverbrauch gesenkt?
+          </p>
+          <div class="mt-2 grid grid-cols-2 gap-3">
+            <div class="rounded-lg bg-surface-700 p-3 text-center">
+              <p class="text-xs text-text-muted">Verbrauch vorher</p>
+              <p class="mt-1 font-mono text-lg text-text-primary">Ø 450 kWh/Tag</p>
+            </div>
+            <div class="rounded-lg bg-surface-700 p-3 text-center">
+              <p class="text-xs text-text-muted">Verbrauch nachher</p>
+              <p class="mt-1 font-mono text-lg text-accent-400">Ø 390 kWh/Tag</p>
+            </div>
+          </div>
+          <p class="mt-3 text-sm text-text-secondary">
+            p = <span class="font-mono text-red-400">0,002</span> → Ja, die Senkung ist statistisch signifikant.
+            Die Wahrscheinlichkeit, diesen Unterschied rein zufällig zu beobachten, liegt bei nur 0,2 %.
+          </p>
+        </div>
+
+        <!-- Signifikanzniveau-Tabelle -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Signifikanzniveaus — die Ampel-Logik</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-surface-600">
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">p-Wert</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Bedeutung</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Bewertung</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 font-mono text-text-primary">p > 0,05</td>
+                  <td class="px-3 py-2 text-text-secondary">Nicht signifikant</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Kein Grund, H₀ abzulehnen</span></td>
+                </tr>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 font-mono text-text-primary">p ≤ 0,05</td>
+                  <td class="px-3 py-2 text-text-secondary">Signifikant</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-400">Hinweis auf echten Effekt</span></td>
+                </tr>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 font-mono text-text-primary">p ≤ 0,01</td>
+                  <td class="px-3 py-2 text-text-secondary">Hoch signifikant</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-orange-500/20 px-2 py-0.5 text-xs font-medium text-orange-400">Starke Evidenz gegen H₀</span></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-mono text-text-primary">p ≤ 0,001</td>
+                  <td class="px-3 py-2 text-text-secondary">Höchst signifikant</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">Sehr starke Evidenz gegen H₀</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Stichprobengröße -->
+        <div class="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4">
+          <p class="mb-1 text-sm font-semibold text-yellow-400">Achtung: p-Wert und Stichprobengröße</p>
+          <p class="text-sm text-text-secondary">
+            Bei großen Datensätzen werden selbst winzige Unterschiede signifikant.
+            Ein Unterschied von 0,5 kWh bei 10.000 Messpunkten kann p &lt; 0,001 ergeben —
+            obwohl er praktisch irrelevant ist.
+            <span class="font-semibold text-text-primary">Deshalb immer auch die praktische Bedeutsamkeit (Effektgröße) prüfen!</span>
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Concept -->

@@ -24,8 +24,8 @@
 - [x] VIF: Multikollinearitäts-Rechner
 
 ## Phase 5 — ML-Modelle
-- [ ] Überblick MESSDAS-Forecast-Modelle (ExtraTrees, RandomForest, Prophet, BlockRNN, LinearRegression)
-- [ ] Vergleichstabelle + Entscheidungsbaum interaktiv
+- [x] Überblick MESSDAS-Forecast-Modelle (ExtraTrees, RandomForest, Prophet, BlockRNN, LinearRegression)
+- [x] Vergleichstabelle + Entscheidungsbaum interaktiv
 
 ## Utils
 - [ ] `stats.ts` — alle Berechnungsfunktionen implementieren

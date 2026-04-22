@@ -3,8 +3,9 @@ import { fTest, variance } from '~/utils/stats'
 
 definePageMeta({ title: 'F-Test' })
 
-const rawInput1 = ref('22.1, 23.5, 21.8, 24.2, 22.7, 23.1, 22.5, 23.8')
-const rawInput2 = ref('18.5, 28.2, 15.1, 30.5, 19.8, 27.3, 16.2, 29.1')
+// Halle A: stable consumption (modern BMS), Halle B: volatile (no automation)
+const rawInput1 = ref('142, 148, 139, 151, 145, 147, 140, 150')
+const rawInput2 = ref('98, 185, 112, 198, 125, 178, 105, 192')
 const alpha = ref(0.05)
 
 function parseInput(raw: string): number[] {
@@ -34,9 +35,10 @@ const significant = computed(() => result.value ? result.value.pValue < alpha.va
     </p>
 
     <div class="mb-8 rounded-lg border border-surface-700 bg-surface-800 p-5 text-sm text-text-secondary">
-      <p class="mb-1 font-semibold text-accent-400">Beispiel: Zwei Gebäude vergleichen</p>
+      <p class="mb-1 font-semibold text-accent-400">Beispiel: Moderne vs. alte Gebäudeautomation</p>
       <p>
-        Gebäude A hat stabile Verbrauchswerte (geringe Varianz), Gebäude B schwankt stark.
+        Halle A (modernes BMS, Gebäudeautomation) hat stabile Verbrauchswerte um 145 MWh.
+        Halle B (keine Automatisierung, manuelle Steuerung) schwankt zwischen 98–198 MWh.
         Der F-Test prüft: Ist dieser Unterschied in der Streuung statistisch signifikant?
       </p>
     </div>

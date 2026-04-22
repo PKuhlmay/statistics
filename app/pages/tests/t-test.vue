@@ -3,8 +3,9 @@ import { tTest } from '~/utils/stats'
 
 definePageMeta({ title: 'T-Test' })
 
-const rawInput = ref('23.1, 24.5, 22.8, 25.2, 23.7, 24.1, 23.5, 24.8, 22.9, 23.4')
-const mu0 = ref(22)
+// Monthly electricity consumption (MWh) — testing against target from energy audit
+const rawInput = ref('148, 162, 139, 171, 155, 158, 144, 167, 141, 153')
+const mu0 = ref(140)
 const alpha = ref(0.05)
 
 const data = computed(() =>
@@ -45,11 +46,91 @@ const steps = computed(() => {
     </p>
 
     <div class="mb-8 rounded-lg border border-surface-700 bg-surface-800 p-5 text-sm text-text-secondary">
-      <p class="mb-1 font-semibold text-accent-400">Beispiel: Heizenergie-Check</p>
+      <p class="mb-1 font-semibold text-accent-400">Beispiel: Energieaudit-Prüfung</p>
       <p>
-        Der Energieberater sagt: „Dieses Gebäude sollte 22 MWh/Monat verbrauchen."
-        Du misst 10 Monate und willst prüfen, ob der reale Verbrauch signifikant höher ist.
+        Laut Energieaudit soll eine Produktionshalle max. 140 MWh/Monat verbrauchen.
+        Du misst 10 Monate und willst prüfen, ob der reale Verbrauch signifikant über dem Sollwert liegt.
       </p>
+    </div>
+
+    <!-- Beginner explanation -->
+    <div class="mb-8">
+      <h2 class="mb-4 text-xl font-semibold">Einfach erklärt</h2>
+      <div class="rounded-xl border border-surface-700 bg-surface-800 p-5 space-y-5">
+        <!-- Core question -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-accent-400">Die Kernfrage des T-Tests</h3>
+          <p class="text-sm text-text-secondary">
+            <span class="font-semibold text-text-primary">Hat jede Variable in meinem Modell wirklich einen Einfluss?
+            Oder ist der Koeffizient nur zufällig ungleich Null?</span>
+          </p>
+          <p class="mt-2 text-sm text-text-secondary">
+            In einer Regression bekommt jede Variable einen Koeffizienten. Aber nur weil der Koeffizient
+            nicht exakt 0 ist, heißt das noch nicht, dass die Variable wirklich etwas beiträgt.
+            Der T-Test prüft genau das.
+          </p>
+        </div>
+
+        <!-- Table example -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Beispiel: Welche Variablen beeinflussen den Gasverbrauch?</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-surface-600">
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Variable</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Koeffizient</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">p-Wert</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Signifikant?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 text-text-primary">Temperatur</td>
+                  <td class="px-3 py-2 font-mono text-text-primary">-12.4</td>
+                  <td class="px-3 py-2 font-mono text-red-400">p &lt; 0,001</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Ja</span></td>
+                </tr>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 text-text-primary">Belegung</td>
+                  <td class="px-3 py-2 font-mono text-text-primary">+3.8</td>
+                  <td class="px-3 py-2 font-mono text-red-400">p = 0,002</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">Ja</span></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 text-text-primary">Windstärke</td>
+                  <td class="px-3 py-2 font-mono text-text-primary">+0.2</td>
+                  <td class="px-3 py-2 font-mono text-text-muted">p = 0,684</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">Nein</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-2 text-xs text-text-muted">
+            Temperatur und Belegung haben einen signifikanten Einfluss auf den Gasverbrauch.
+            Windstärke dagegen nicht — der kleine Koeffizient könnte reiner Zufall sein.
+          </p>
+        </div>
+
+        <!-- T-Test vs F-Test -->
+        <div class="rounded-lg bg-surface-900 p-4">
+          <p class="mb-2 text-sm font-semibold text-text-primary">T-Test vs. F-Test — was ist der Unterschied?</p>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="rounded-lg bg-surface-700 p-3">
+              <p class="text-xs font-semibold text-accent-400">T-Test</p>
+              <p class="mt-1 text-sm text-text-secondary">Prüft <span class="font-semibold text-text-primary">eine einzelne Variable</span>: Hat diese Variable einen signifikanten Einfluss?</p>
+            </div>
+            <div class="rounded-lg bg-surface-700 p-3">
+              <p class="text-xs font-semibold text-accent-400">F-Test</p>
+              <p class="mt-1 text-sm text-text-secondary">Prüft das <span class="font-semibold text-text-primary">Gesamtmodell</span>: Erklärt das Modell als Ganzes die Daten besser als gar kein Modell?</p>
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-text-muted">
+            Es ist möglich, dass der F-Test signifikant ist (Modell insgesamt nützlich), aber einzelne T-Tests nicht
+            — manche Variablen tragen dann nichts bei und können entfernt werden.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Formula -->

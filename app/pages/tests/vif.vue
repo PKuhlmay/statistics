@@ -74,6 +74,116 @@ function updateName(idx: number, value: string) {
       </p>
     </div>
 
+    <!-- Beginner explanation -->
+    <div class="mb-8">
+      <h2 class="mb-4 text-xl font-semibold">Einfach erklärt</h2>
+      <div class="rounded-xl border border-surface-700 bg-surface-800 p-5 space-y-5">
+        <!-- Was ist Multikollinearität? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-accent-400">Was ist Multikollinearität?</h3>
+          <p class="text-sm text-text-secondary">
+            Multikollinearität bedeutet: <span class="font-semibold text-text-primary">Zwei oder mehr Variablen im Modell messen
+            im Grunde das Gleiche.</span> Sie sind so stark miteinander korreliert, dass das Modell nicht
+            mehr unterscheiden kann, welche Variable den Effekt verursacht.
+          </p>
+          <div class="mt-3 rounded-lg bg-surface-900 p-4">
+            <p class="mb-1 text-sm font-semibold text-text-primary">Klassisches Beispiel: Temperatur und Heizgradtage</p>
+            <p class="text-sm text-text-secondary">
+              Heizgradtage (HGT) werden direkt aus der Außentemperatur berechnet!
+              Beide ins Modell zu stecken bringt keine neue Information — sie sagen im Prinzip das Gleiche aus,
+              nur in unterschiedlicher Form.
+            </p>
+          </div>
+        </div>
+
+        <!-- Warum ist das ein Problem? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Warum ist das ein Problem?</h3>
+          <div class="space-y-2">
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-xs font-bold text-red-400">1</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">Koeffizienten werden instabil</p>
+                <p class="text-xs text-text-secondary">Kleine Änderungen in den Daten führen zu großen Sprüngen in den Koeffizienten. Heute sagt das Modell "Temperatur ist wichtig", morgen "HGT ist wichtig".</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-xs font-bold text-red-400">2</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">T-Tests werden unzuverlässig</p>
+                <p class="text-xs text-text-secondary">Beide Variablen können als "nicht signifikant" erscheinen, obwohl sie zusammen den Verbrauch perfekt erklären.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-xs font-bold text-red-400">3</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">Modell wird schwer interpretierbar</p>
+                <p class="text-xs text-text-secondary">Man kann nicht mehr sagen, welcher Faktor den Verbrauch treibt — die Effekte "verschwimmen".</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ASCII diagram -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Visualisierung</h3>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="rounded-lg bg-surface-900 p-4">
+              <p class="mb-2 text-xs font-semibold text-green-400">Ohne Multikollinearität</p>
+              <pre class="font-mono text-xs text-text-secondary leading-relaxed">  Temperatur ──→ Verbrauch
+                          ↗
+  Fläche ────────┘
+                          ↗
+  Alter ─────────┘</pre>
+              <p class="mt-2 text-xs text-text-muted">Jede Variable hat einen klaren, eigenen Einfluss.</p>
+            </div>
+            <div class="rounded-lg bg-surface-900 p-4">
+              <p class="mb-2 text-xs font-semibold text-red-400">Mit Multikollinearität</p>
+              <pre class="font-mono text-xs text-text-secondary leading-relaxed">  Temperatur ←──→ HGT
+       ↘          ↙
+        ??? Verbrauch ???
+       ↗          ↖
+  Fläche ←──→ Alter</pre>
+              <p class="mt-2 text-xs text-text-muted">Die Einflüsse lassen sich nicht mehr sauber trennen.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Was tun? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Was tun bei hohem VIF?</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-surface-600">
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Option</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Maßnahme</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Wann sinnvoll?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 font-semibold text-text-primary">1. Entfernen</td>
+                  <td class="px-3 py-2 text-text-secondary">Eine der korrelierten Variablen aus dem Modell nehmen</td>
+                  <td class="px-3 py-2 text-text-secondary">Standard-Vorgehen, wenn Interpretation wichtig ist</td>
+                </tr>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 font-semibold text-text-primary">2. Kombinieren</td>
+                  <td class="px-3 py-2 text-text-secondary">Variablen zusammenfassen (z.B. per PCA oder gewichtetem Index)</td>
+                  <td class="px-3 py-2 text-text-secondary">Wenn beide Variablen inhaltlich wichtig sind</td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 font-semibold text-text-primary">3. Akzeptieren</td>
+                  <td class="px-3 py-2 text-text-secondary">VIF ignorieren und Modell so lassen</td>
+                  <td class="px-3 py-2 text-text-secondary">Wenn nur Vorhersage zählt, nicht die Interpretation der Koeffizienten</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Formula -->
     <div class="mb-8">
       <h3 class="mb-1 text-sm font-semibold text-text-secondary">VIF-Berechnung</h3>

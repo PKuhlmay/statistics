@@ -14,15 +14,15 @@ ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend)
 
 definePageMeta({ title: 'Einfache Regression' })
 
-// Draggable points for the sandbox
+// Heating degree days (HDD) vs. gas consumption (MWh) — industrial building
 const points = ref<{ x: number; y: number }[]>([
-  { x: 2, y: 3 },
-  { x: 4, y: 5 },
-  { x: 6, y: 7 },
-  { x: 8, y: 8 },
-  { x: 10, y: 12 },
-  { x: 12, y: 11 },
-  { x: 14, y: 15 },
+  { x: 80, y: 62 },
+  { x: 150, y: 95 },
+  { x: 220, y: 128 },
+  { x: 280, y: 155 },
+  { x: 320, y: 182 },
+  { x: 350, y: 195 },
+  { x: 410, y: 225 },
 ])
 
 const regression = computed(() => {
@@ -154,7 +154,7 @@ function updatePoint(index: number, axis: 'x' | 'y', value: string) {
 
 function addPoint() {
   const maxX = Math.max(...points.value.map((p) => p.x))
-  points.value.push({ x: maxX + 2, y: maxX + 3 })
+  points.value.push({ x: maxX + 30, y: maxX + 20 })
 }
 
 function removePoint(index: number) {

@@ -3,7 +3,8 @@ import { grubbs, mean, standardDeviation } from '~/utils/stats'
 
 definePageMeta({ title: 'Grubbs-Test' })
 
-const rawInput = ref('22, 24, 23, 25, 22, 23, 24, 21, 23, 85')
+// Monthly electricity consumption (MWh) — one month with compressor failure
+const rawInput = ref('142, 158, 137, 165, 148, 152, 145, 139, 150, 412')
 
 const data = computed(() =>
   rawInput.value
@@ -52,11 +53,89 @@ const iterativeResults = computed(() => {
     </p>
 
     <div class="mb-8 rounded-lg border border-surface-700 bg-surface-800 p-5 text-sm text-text-secondary">
-      <p class="mb-1 font-semibold text-accent-400">Beispiel: Energiemonitoring</p>
+      <p class="mb-1 font-semibold text-accent-400">Beispiel: Industrielles Energiemonitoring</p>
       <p>
-        Ein Gebäude verbraucht normalerweise 21–25 MWh/Monat. Ein Monat zeigt 85 MWh.
+        Eine Produktionshalle verbraucht normalerweise 137–165 MWh/Monat. Ein Monat zeigt 412 MWh —
+        ein Druckluftkompressor hatte ein Leck und lief ununterbrochen.
         Ist das ein statistischer Ausreißer oder noch im Rahmen der Normalverteilung?
       </p>
+    </div>
+
+    <!-- Beginner explanation -->
+    <div class="mb-8">
+      <h2 class="mb-4 text-xl font-semibold">Einfach erklärt</h2>
+      <div class="rounded-xl border border-surface-700 bg-surface-800 p-5 space-y-5">
+        <!-- Was ist ein Ausreißer? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-accent-400">Was ist ein Ausreißer?</h3>
+          <p class="text-sm text-text-secondary">
+            Ein Ausreißer ist ein Datenpunkt, der stark vom Rest abweicht. Aber nicht jeder
+            Ausreißer ist ein Fehler — es gibt verschiedene Ursachen:
+          </p>
+          <div class="mt-3 space-y-2">
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-xs font-bold text-red-400">1</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">Messfehler</p>
+                <p class="text-xs text-text-secondary">Der Sensor war defekt oder falsch kalibriert. Beispiel: Stromzähler zeigt 0 kWh obwohl Verbrauch lief.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-yellow-500/20 text-xs font-bold text-yellow-400">2</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">Echter Extremwert (Störfall)</p>
+                <p class="text-xs text-text-secondary">Ein reales Ereignis hat den Wert verursacht. Beispiel: Kompressorleck führt zu 3x höherem Stromverbrauch.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 rounded-lg bg-surface-900 p-3">
+              <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-xs font-bold text-blue-400">3</span>
+              <div>
+                <p class="text-sm font-semibold text-text-primary">Datenfehler (falsche Einheit)</p>
+                <p class="text-xs text-text-secondary">Werte wurden in kWh statt MWh eingetragen oder ein Zeitstempel ist verschoben.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Was tun mit Ausreißern? -->
+        <div>
+          <h3 class="mb-2 text-sm font-semibold text-text-primary">Was tun mit erkannten Ausreißern?</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-surface-600">
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Ursache</th>
+                  <th class="px-3 py-2 text-left text-xs text-text-muted">Maßnahme</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 text-text-primary">Messfehler</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-red-500/20 px-2 py-0.5 text-xs font-medium text-red-400">Entfernen</span> <span class="text-text-secondary">— der Wert ist schlicht falsch</span></td>
+                </tr>
+                <tr class="border-b border-surface-700/50">
+                  <td class="px-3 py-2 text-text-primary">Echter Extremwert</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-400">Dokumentieren</span> <span class="text-text-secondary">— separat analysieren, ggf. als eigene Kategorie behandeln</span></td>
+                </tr>
+                <tr>
+                  <td class="px-3 py-2 text-text-primary">Unklar</td>
+                  <td class="px-3 py-2"><span class="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs font-medium text-blue-400">Nicht vorschnell löschen</span> <span class="text-text-secondary">— erst die Ursache klären</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- MESSDAS context -->
+        <div class="rounded-lg border border-accent-500/20 bg-accent-500/5 p-4">
+          <p class="mb-1 text-sm font-semibold text-accent-400">MESSDAS-Kontext: Ausreißer im KI-Forecast</p>
+          <p class="text-sm text-text-secondary">
+            Im KI-Forecast können Ausreißer in den Trainingsdaten die Modellqualität verschlechtern.
+            Ein einzelner Tag mit Kompressorleck kann dazu führen, dass das Modell systematisch zu hohe
+            Verbräuche vorhersagt. Der Grubbs-Test hilft, solche Werte vor dem Training zu identifizieren.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Formula -->

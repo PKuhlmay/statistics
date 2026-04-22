@@ -84,6 +84,93 @@ function rLabel(r: number): string {
       </p>
     </div>
 
+    <!-- Plain-language explanation -->
+    <div class="mb-8 space-y-6">
+      <!-- Concrete energy examples for r values -->
+      <div class="rounded-lg border border-surface-700 bg-surface-800 p-5">
+        <p class="mb-3 text-sm font-semibold text-accent-400">Was bedeuten die Werte konkret?</p>
+        <div class="space-y-3 text-sm text-text-secondary">
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 shrink-0 font-mono text-accent-400">r &asymp; +1</span>
+            <p><span class="font-semibold text-text-primary">Starker positiver Zusammenhang:</span>
+              Heizgradtage und Heizverbrauch — mehr HGT &rarr; mehr Verbrauch.</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 shrink-0 font-mono text-red-400">r &asymp; &minus;1</span>
+            <p><span class="font-semibold text-text-primary">Starker negativer Zusammenhang:</span>
+              Außentemperatur und Heizverbrauch — wärmer &rarr; weniger Heizung.</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="mt-0.5 shrink-0 font-mono text-text-muted">r &asymp; 0</span>
+            <p><span class="font-semibold text-text-primary">Kein Zusammenhang:</span>
+              Windrichtung und Stromverbrauch eines Bürogebäudes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interpretation table -->
+      <div class="rounded-lg border border-surface-700 bg-surface-800 p-5">
+        <p class="mb-3 text-sm font-semibold text-accent-400">Interpretationstabelle</p>
+        <div class="overflow-hidden rounded-lg">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-surface-600 text-text-muted">
+                <th class="px-4 py-2">Bereich von r</th>
+                <th class="px-4 py-2">Interpretation</th>
+              </tr>
+            </thead>
+            <tbody class="text-text-secondary">
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-accent-400">+0.7 bis +1.0</td>
+                <td class="px-4 py-2">Starker positiver Zusammenhang</td>
+              </tr>
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-accent-400">+0.4 bis +0.7</td>
+                <td class="px-4 py-2">Mittlerer positiver Zusammenhang</td>
+              </tr>
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-text-muted">+0.2 bis +0.4</td>
+                <td class="px-4 py-2">Schwacher positiver Zusammenhang</td>
+              </tr>
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-text-muted">&minus;0.2 bis +0.2</td>
+                <td class="px-4 py-2">Kein linearer Zusammenhang</td>
+              </tr>
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-text-muted">&minus;0.4 bis &minus;0.2</td>
+                <td class="px-4 py-2">Schwacher negativer Zusammenhang</td>
+              </tr>
+              <tr class="border-b border-surface-700">
+                <td class="px-4 py-2 font-mono text-red-400">&minus;0.7 bis &minus;0.4</td>
+                <td class="px-4 py-2">Mittlerer negativer Zusammenhang</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 font-mono text-red-400">&minus;1.0 bis &minus;0.7</td>
+                <td class="px-4 py-2">Starker negativer Zusammenhang</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Correlation != Causation -->
+      <div class="rounded-lg border border-amber-500/30 bg-amber-500/5 p-5">
+        <p class="mb-2 text-sm font-semibold text-amber-400">Goldene Regel: Korrelation ≠ Kausalität</p>
+        <p class="text-sm leading-relaxed text-text-secondary">
+          Nur weil zwei Dinge gemeinsam steigen oder fallen, heißt das nicht, dass das eine das andere
+          <span class="italic">verursacht</span>.
+        </p>
+        <div class="mt-3 rounded-lg bg-surface-800 p-4 text-sm text-text-secondary">
+          <p class="mb-1 font-semibold text-text-primary">Klassiker:</p>
+          <p>
+            Eisverkauf und Ertrinkungsfälle korrelieren positiv. Ursache? Beides steigt im
+            <span class="text-accent-400">Sommer</span> — die gemeinsame Ursache ist die Jahreszeit,
+            nicht das Eis.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Formula -->
     <div class="mb-8">
       <h3 class="mb-1 text-sm font-semibold text-text-secondary">Pearson-Korrelationskoeffizient</h3>

@@ -15,8 +15,9 @@ ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler, 
 
 definePageMeta({ title: 'Verteilungen' })
 
-const mu = ref(0)
-const sigma = ref(1)
+// Default: typical monthly electricity consumption in MWh (μ=150, σ=20)
+const mu = ref(150)
+const sigma = ref(20)
 
 const chartData = computed(() => {
   const { x, y } = normalCurvePoints(mu.value, Math.max(sigma.value, 0.1), 200, 4)
@@ -82,6 +83,67 @@ const chartOptions = computed(() => ({
       </p>
     </div>
 
+    <!-- Plain-language explanation -->
+    <div class="mb-8 space-y-6">
+      <div>
+        <h2 class="mb-3 text-xl font-semibold">Was ist eine Verteilung?</h2>
+        <p class="text-sm leading-relaxed text-text-secondary">
+          Wenn du viele Messwerte in ein Balkendiagramm (Histogramm) packst, siehst du ein Muster — die
+          <span class="text-accent-400">Verteilung</span>. Sie zeigt, welche Werte häufig und welche selten vorkommen.
+        </p>
+      </div>
+
+      <!-- ASCII bell curve: 68-95-99.7 rule -->
+      <div class="rounded-lg border border-surface-700 bg-surface-800 p-5">
+        <p class="mb-3 text-sm font-semibold text-accent-400">Die 68-95-99.7-Regel auf einen Blick</p>
+        <pre class="overflow-x-auto font-mono text-xs leading-snug text-text-secondary">
+                          ┌─── 99.7 % ───┐
+                       ┌──┤               ├──┐
+                    ┌──┤  │   95 %        │  ├──┐
+                 ┌──┤  │  │  ┌─ 68 % ─┐  │  │  ├──┐
+                .│  │  │  │  │        │  │  │  │  │.
+              .  │  │  │  │  │   ██   │  │  │  │  │  .
+            .    │  │  │  │  │  ████  │  │  │  │  │    .
+          .      │  │  │  │  │ ██████ │  │  │  │  │      .
+      ___._______│__│__│__│__│████████│__│__│__│__│_______.___
+         -3σ        -2σ       -1σ   μ   +1σ       +2σ        +3σ
+        </pre>
+      </div>
+
+      <!-- Why it matters -->
+      <div class="rounded-lg border border-surface-700 bg-surface-800 p-5">
+        <p class="mb-2 text-sm font-semibold text-accent-400">Warum ist das wichtig?</p>
+        <p class="text-sm leading-relaxed text-text-secondary">
+          Viele natürliche Prozesse folgen ungefähr einer Normalverteilung. Wenn ein Messwert mehr als
+          <span class="font-semibold text-accent-400">3 Standardabweichungen</span> vom Mittelwert entfernt ist,
+          ist er mit 99,7 % Wahrscheinlichkeit ungewöhnlich — ein möglicher Alarm.
+        </p>
+        <div class="mt-4 rounded-lg bg-surface-700 p-4 text-sm text-text-secondary">
+          <p class="mb-1 font-semibold text-text-primary">Praxisbeispiel:</p>
+          <p>
+            Ein Gebäude verbraucht im Schnitt <span class="font-mono text-accent-400">150 MWh/Monat</span>
+            mit <span class="font-mono text-accent-400">&sigma; = 20 MWh</span>. Ein Monat mit
+            <span class="font-mono text-accent-400">230 MWh</span> liegt bei
+            <span class="font-mono text-accent-400">4&sigma;</span> &rarr; extrem ungewöhnlich &rarr; Ursache prüfen!
+          </p>
+        </div>
+      </div>
+
+      <!-- Skewed distributions -->
+      <div class="rounded-lg border border-surface-700 bg-surface-800 p-5">
+        <p class="mb-2 text-sm font-semibold text-accent-400">Nicht alles ist symmetrisch: Schiefe Verteilungen</p>
+        <p class="text-sm leading-relaxed text-text-secondary">
+          <span class="font-semibold text-text-primary">Rechtsschief (positiv schief):</span>
+          Die meiste Zeit normaler Verbrauch, aber selten extreme Spitzen — typisch für
+          <span class="text-accent-400">Spitzenlastverteilungen</span> im Energiemanagement.
+        </p>
+        <p class="mt-2 text-sm leading-relaxed text-text-secondary">
+          Bei schiefen Verteilungen ist der <span class="text-accent-400">Median</span> oft aussagekräftiger als der
+          Mittelwert, weil er von Ausreißern nicht verzerrt wird.
+        </p>
+      </div>
+    </div>
+
     <!-- Formula -->
     <div class="mb-8">
       <h3 class="mb-1 text-sm font-semibold text-text-secondary">Dichtefunktion der Normalverteilung</h3>
@@ -95,17 +157,17 @@ const chartOptions = computed(() => ({
         <div class="mb-6 grid grid-cols-2 gap-6">
           <SliderInput
             v-model="mu"
-            :min="-5"
-            :max="5"
-            :step="0.1"
-            label="Mittelwert (μ)"
+            :min="50"
+            :max="300"
+            :step="5"
+            label="Mittelwert μ (MWh)"
           />
           <SliderInput
             v-model="sigma"
-            :min="0.2"
-            :max="4"
-            :step="0.1"
-            label="Standardabweichung (σ)"
+            :min="5"
+            :max="60"
+            :step="1"
+            label="Standardabweichung σ (MWh)"
           />
         </div>
 

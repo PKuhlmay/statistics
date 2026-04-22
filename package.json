@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
@@ -11,6 +16,7 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@vueuse/core": "^14.2.1",
     "chart.js": "^4.5.1",
     "katex": "^0.16.45",
     "nuxt": "^3.21.2",
@@ -20,8 +26,12 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
+    "@nuxt/hints": "^1.0.3",
+    "@nuxt/image": "^2.0.0",
+    "@nuxt/scripts": "^1.0.1",
     "@tailwindcss/vite": "^4.2.4",
     "@types/katex": "^0.16.7",
+    "@vueuse/nuxt": "^14.2.1",
     "tailwindcss": "^4.2.4",
     "typescript": "^5.8.3",
     "vue-tsc": "^2.2.8"
